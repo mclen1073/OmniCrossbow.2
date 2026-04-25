@@ -15,6 +15,7 @@ Different item categories produce different muzzle effects:
 - **Fire-themed items** (`Fire Charge`, `Blaze Powder`, `Magma Cream`) create flame particles and blaze-like sounds.
 - **Food items** create happy-villager particles and playful audio.
 - **Ender-themed items** (`Ender Pearl`, `Ender Eye`, `Chorus Fruit`) produce portal particles and teleport audio.
+- **Wither items** (`Wither Rose`, `Wither Skeleton Skull`, `Nether Star`) fire a wither beam that applies the Wither effect to mobs in its path.
 - All other items emit crit particles.
 
 ## Technical details

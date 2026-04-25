@@ -8,12 +8,16 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,6 +114,46 @@ public class OmniCrossbowMod implements ModInitializer {
 			return;
 		}
 
+		if (shotStack.is(Items.WITHER_ROSE) || shotStack.is(Items.WITHER_SKELETON_SKULL) || shotStack.is(Items.NETHER_STAR)) {
+			fireWitherBeam(level, player, origin, look);
+			return;
+		}
+
 		level.sendParticles(ParticleTypes.CRIT, origin.x, origin.y, origin.z, 10, 0.2, 0.2, 0.2, 0.05);
+	}
+
+	private static void fireWitherBeam(ServerLevel level, Player player, Vec3 start, Vec3 look) {
+		Vec3 end = start.add(look.scale(24.0D));
+		AABB beamBox = new AABB(start, end).inflate(1.1D);
+
+		for (Mob mob : level.getEntitiesOfClass(Mob.class, beamBox, mob -> mob.isAlive() && !mob.isSpectator())) {
+			Vec3 mobCenter = mob.getBoundingBox().getCenter();
+			double maxDistance = 0.75D + (mob.getBbWidth() * 0.6D);
+			if (distancePointToSegment(mobCenter, start, end) <= maxDistance) {
+				mob.addEffect(new MobEffectInstance(MobEffects.WITHER, 100, 1));
+			}
+		}
+
+		for (int i = 0; i <= 32; i++) {
+			double t = i / 32.0D;
+			Vec3 p = start.lerp(end, t);
+			level.sendParticles(ParticleTypes.SMOKE, p.x, p.y, p.z, 1, 0.02, 0.02, 0.02, 0.0);
+			level.sendParticles(ParticleTypes.ENTITY_EFFECT, p.x, p.y, p.z, 1, 0.02, 0.02, 0.02, 0.0);
+		}
+
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.95F, 0.7F);
+	}
+
+	private static double distancePointToSegment(Vec3 point, Vec3 start, Vec3 end) {
+		Vec3 segment = end.subtract(start);
+		double segmentLengthSquared = segment.lengthSqr();
+		if (segmentLengthSquared == 0.0D) {
+			return point.distanceTo(start);
+		}
+
+		double t = point.subtract(start).dot(segment) / segmentLengthSquared;
+		t = Math.max(0.0D, Math.min(1.0D, t));
+		Vec3 projection = start.add(segment.scale(t));
+		return point.distanceTo(projection);
 	}
 }
