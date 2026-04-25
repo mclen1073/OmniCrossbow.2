@@ -1,31 +1,27 @@
 {
 	"schemaVersion": 1,
-	"id": "modid",
+	"id": "omnicrossbow",
 	"version": "${version}",
-	"name": "Example Mod",
-	"description": "This is an example description! Tell everyone what your mod is about!",
-	"authors": [
-		"Me!"
+	"name": "OmniCrossbow",
+	"description": "Launch every item from a crossbow, with a multitude of custom effects!",
+	"authors": ["OmniCrossbow Team"
 	],
-	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
-	},
-	"license": "CC0-1.0",
-	"icon": "assets/modid/icon.png",
+	"contact": {"homepage": "https://sora.openai.com",
+		"sources": "https://modrinth.com/mod/omnicrossbow"
+			"license": "MIT",
 	"environment": "*",
 	"entrypoints": {
-		"main": [
-			"com.example.ExampleMod"
+		"main": ["com.omnicrossbow.OmniCrossbowMod"
+		],
+		"client": ["com.omnicrossbow.OmniCrossbowMod"
+		],
+		"com.omnicrossbow.client.OmniCrossbowClient"
 		]
 	},
-	"mixins": [
-		"modid.mixins.json"
-	],
-	"depends": {
+		"depends": {
 		"fabricloader": ">=0.19.2",
-		"minecraft": "~1.14.4",
-		"java": ">=8",
-		"fabric": "*"
-	}
-}
+		"minecraft": "~1.21",
+		"java": ">=21",
+		"fabric-api": "*"
+			}
+		}
