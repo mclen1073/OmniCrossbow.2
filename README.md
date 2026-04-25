@@ -28,3 +28,4 @@ Different item categories produce different muzzle effects and interactions:
 - Built for **Fabric + Java 21 + Minecraft 1.21**.
 - Uses Fabric's `UseItemCallback` event.
 - Java-only implementation (no Kotlin).
+- Layered vanilla sound design for each interaction profile.

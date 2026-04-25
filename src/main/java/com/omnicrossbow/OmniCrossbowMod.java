@@ -98,19 +98,19 @@ public class OmniCrossbowMod implements ModInitializer {
 
 		if (shotStack.is(Items.FIRE_CHARGE) || shotStack.is(Items.BLAZE_POWDER) || shotStack.is(Items.MAGMA_CREAM)) {
 			level.sendParticles(ParticleTypes.FLAME, origin.x, origin.y, origin.z, 16, 0.25, 0.25, 0.25, 0.01);
-			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BLAZE_SHOOT, SoundSource.PLAYERS, 0.85F, 1.1F);
+			playLayeredSound(level, player, SoundEvents.BLAZE_SHOOT, 0.85F, 1.1F, SoundEvents.FIRECHARGE_USE, 0.55F, 1.15F);
 			return;
 		}
 
 		if (shotStack.isEdible()) {
 			level.sendParticles(ParticleTypes.HAPPY_VILLAGER, origin.x, origin.y, origin.z, 12, 0.2, 0.2, 0.2, 0.02);
-			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_BURP, SoundSource.PLAYERS, 0.6F, 1.3F);
+			playLayeredSound(level, player, SoundEvents.PLAYER_BURP, 0.6F, 1.3F, SoundEvents.CHICKEN_EGG, 0.5F, 1.35F);
 			return;
 		}
 
 		if (shotStack.is(Items.ENDER_PEARL) || shotStack.is(Items.ENDER_EYE) || shotStack.is(Items.CHORUS_FRUIT)) {
 			level.sendParticles(ParticleTypes.PORTAL, origin.x, origin.y, origin.z, 28, 0.35, 0.35, 0.35, 0.2);
-			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 0.7F, 1.0F);
+			playLayeredSound(level, player, SoundEvents.ENDERMAN_TELEPORT, 0.7F, 1.0F, SoundEvents.PORTAL_TRAVEL, 0.4F, 1.2F);
 			return;
 		}
 
@@ -122,7 +122,7 @@ public class OmniCrossbowMod implements ModInitializer {
 		// Extra interaction 1: TNT burst visuals + explosion audio.
 		if (shotStack.is(Items.TNT)) {
 			level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, origin.x, origin.y, origin.z, 1, 0.0, 0.0, 0.0, 0.0);
-			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 0.8F, 1.0F);
+			playLayeredSound(level, player, SoundEvents.GENERIC_EXPLODE, 0.8F, 1.0F, SoundEvents.TNT_PRIMED, 0.6F, 1.1F);
 			return;
 		}
 
@@ -131,7 +131,7 @@ public class OmniCrossbowMod implements ModInitializer {
 			player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 120, 1));
 			player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 200, 0));
 			level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, origin.x, origin.y, origin.z, 8, 0.2, 0.2, 0.2, 0.01);
-			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.85F, 1.25F);
+			playLayeredSound(level, player, SoundEvents.AMETHYST_BLOCK_CHIME, 0.85F, 1.25F, SoundEvents.EXPERIENCE_ORB_PICKUP, 0.45F, 1.6F);
 			return;
 		}
 
@@ -139,7 +139,7 @@ public class OmniCrossbowMod implements ModInitializer {
 		if (shotStack.is(Items.SPIDER_EYE) || shotStack.is(Items.POISONOUS_POTATO) || shotStack.is(Items.FERMENTED_SPIDER_EYE)) {
 			applyAreaEffectToMobs(level, origin, 4.0D, new MobEffectInstance(MobEffects.POISON, 100, 0));
 			level.sendParticles(ParticleTypes.ITEM_SLIME, origin.x, origin.y, origin.z, 16, 0.3, 0.3, 0.3, 0.02);
-			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SPIDER_HURT, SoundSource.PLAYERS, 0.8F, 0.75F);
+			playLayeredSound(level, player, SoundEvents.SPIDER_HURT, 0.8F, 0.75F, SoundEvents.BREWING_STAND_BREW, 0.55F, 1.1F);
 			return;
 		}
 
@@ -147,7 +147,7 @@ public class OmniCrossbowMod implements ModInitializer {
 		if (shotStack.is(Items.SLIME_BALL) || shotStack.is(Items.HONEY_BOTTLE) || shotStack.is(Items.HONEYCOMB)) {
 			applyAreaEffectToMobs(level, origin, 4.5D, new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 120, 1));
 			level.sendParticles(ParticleTypes.FALLING_HONEY, origin.x, origin.y, origin.z, 14, 0.3, 0.3, 0.3, 0.01);
-			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SLIME_SQUISH, SoundSource.PLAYERS, 0.9F, 0.9F);
+			playLayeredSound(level, player, SoundEvents.SLIME_SQUISH, 0.9F, 0.9F, SoundEvents.HONEY_BLOCK_SLIDE, 0.55F, 1.0F);
 			return;
 		}
 
@@ -156,10 +156,11 @@ public class OmniCrossbowMod implements ModInitializer {
 			player.addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 140, 0));
 			player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 140, 0));
 			level.sendParticles(ParticleTypes.BUBBLE_POP, origin.x, origin.y, origin.z, 18, 0.3, 0.3, 0.3, 0.05);
-			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.CONDUIT_ACTIVATE, SoundSource.PLAYERS, 0.7F, 1.1F);
+			playLayeredSound(level, player, SoundEvents.CONDUIT_ACTIVATE, 0.7F, 1.1F, SoundEvents.DOLPHIN_SWIM, 0.5F, 1.1F);
 			return;
 		}
 
+		playLayeredSound(level, player, SoundEvents.CROSSBOW_HIT, 0.75F, 1.2F, SoundEvents.ITEM_BREAK, 0.35F, 1.8F);
 		level.sendParticles(ParticleTypes.CRIT, origin.x, origin.y, origin.z, 10, 0.2, 0.2, 0.2, 0.05);
 	}
 
@@ -189,7 +190,12 @@ public class OmniCrossbowMod implements ModInitializer {
 			level.sendParticles(ParticleTypes.ENTITY_EFFECT, p.x, p.y, p.z, 1, 0.02, 0.02, 0.02, 0.0);
 		}
 
-		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.WITHER_SHOOT, SoundSource.PLAYERS, 0.95F, 0.7F);
+		playLayeredSound(level, player, SoundEvents.WITHER_SHOOT, 0.95F, 0.7F, SoundEvents.WITHER_AMBIENT, 0.35F, 1.2F);
+	}
+
+	private static void playLayeredSound(ServerLevel level, Player player, net.minecraft.sounds.SoundEvent primary, float primaryVolume, float primaryPitch, net.minecraft.sounds.SoundEvent secondary, float secondaryVolume, float secondaryPitch) {
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), primary, SoundSource.PLAYERS, primaryVolume, primaryPitch);
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), secondary, SoundSource.PLAYERS, secondaryVolume, secondaryPitch);
 	}
 
 	private static double distancePointToSegment(Vec3 point, Vec3 start, Vec3 end) {
