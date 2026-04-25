@@ -8,14 +8,14 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -119,7 +119,55 @@ public class OmniCrossbowMod implements ModInitializer {
 			return;
 		}
 
+		// Extra interaction 1: TNT burst visuals + explosion audio.
+		if (shotStack.is(Items.TNT)) {
+			level.sendParticles(ParticleTypes.EXPLOSION_EMITTER, origin.x, origin.y, origin.z, 1, 0.0, 0.0, 0.0, 0.0);
+			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 0.8F, 1.0F);
+			return;
+		}
+
+		// Extra interaction 2: Golden foods buff the shooter.
+		if (shotStack.is(Items.GOLDEN_APPLE) || shotStack.is(Items.ENCHANTED_GOLDEN_APPLE) || shotStack.is(Items.GLISTERING_MELON_SLICE)) {
+			player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 120, 1));
+			player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 200, 0));
+			level.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, origin.x, origin.y, origin.z, 8, 0.2, 0.2, 0.2, 0.01);
+			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.PLAYERS, 0.85F, 1.25F);
+			return;
+		}
+
+		// Extra interaction 3: Toxic items poison nearby mobs.
+		if (shotStack.is(Items.SPIDER_EYE) || shotStack.is(Items.POISONOUS_POTATO) || shotStack.is(Items.FERMENTED_SPIDER_EYE)) {
+			applyAreaEffectToMobs(level, origin, 4.0D, new MobEffectInstance(MobEffects.POISON, 100, 0));
+			level.sendParticles(ParticleTypes.ITEM_SLIME, origin.x, origin.y, origin.z, 16, 0.3, 0.3, 0.3, 0.02);
+			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SPIDER_HURT, SoundSource.PLAYERS, 0.8F, 0.75F);
+			return;
+		}
+
+		// Extra interaction 4: Slime/honey ammo slows nearby mobs.
+		if (shotStack.is(Items.SLIME_BALL) || shotStack.is(Items.HONEY_BOTTLE) || shotStack.is(Items.HONEYCOMB)) {
+			applyAreaEffectToMobs(level, origin, 4.5D, new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 120, 1));
+			level.sendParticles(ParticleTypes.FALLING_HONEY, origin.x, origin.y, origin.z, 14, 0.3, 0.3, 0.3, 0.01);
+			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SLIME_SQUISH, SoundSource.PLAYERS, 0.9F, 0.9F);
+			return;
+		}
+
+		// Extra interaction 5: Prismarine/nautilus gives brief water mobility.
+		if (shotStack.is(Items.PRISMARINE_CRYSTALS) || shotStack.is(Items.PRISMARINE_SHARD) || shotStack.is(Items.NAUTILUS_SHELL)) {
+			player.addEffect(new MobEffectInstance(MobEffects.DOLPHINS_GRACE, 140, 0));
+			player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 140, 0));
+			level.sendParticles(ParticleTypes.BUBBLE_POP, origin.x, origin.y, origin.z, 18, 0.3, 0.3, 0.3, 0.05);
+			level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.CONDUIT_ACTIVATE, SoundSource.PLAYERS, 0.7F, 1.1F);
+			return;
+		}
+
 		level.sendParticles(ParticleTypes.CRIT, origin.x, origin.y, origin.z, 10, 0.2, 0.2, 0.2, 0.05);
+	}
+
+	private static void applyAreaEffectToMobs(ServerLevel level, Vec3 center, double radius, MobEffectInstance effect) {
+		AABB area = new AABB(center, center).inflate(radius);
+		for (Mob mob : level.getEntitiesOfClass(Mob.class, area, mob -> mob.isAlive() && !mob.isSpectator())) {
+			mob.addEffect(new MobEffectInstance(effect));
+		}
 	}
 
 	private static void fireWitherBeam(ServerLevel level, Player player, Vec3 start, Vec3 look) {
